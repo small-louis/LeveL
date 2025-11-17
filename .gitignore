@@ -1,0 +1,40 @@
+# Python virtual environments
+.venv/
+gampal.venv/
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Large files
+*.pdf
+
+# Processed data (optional - comment out if you want to include them)
+GSR-data/plots/
+GSR-data/comparisons/
+
