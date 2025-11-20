@@ -1,0 +1,11 @@
+# Requirements for Slot Machine GUI
+# Python 3.x with tkinter (usually comes built-in)
+
+# Note: tkinter is included with most Python installations
+# If you're on Linux and tkinter is missing, install it with:
+# - Ubuntu/Debian: sudo apt-get install python3-tk
+# - Fedora: sudo dnf install python3-tkinter
+# - Arch: sudo pacman -S tk
+
+# No additional pip packages required!
+

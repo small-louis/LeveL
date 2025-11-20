@@ -1,0 +1,24 @@
+group_id,spin_number,timestamp,bet_per_line,num_lines,total_bet,winnings,winning_lines,balance_after_spin,time_since_last_spin_sec,bet_escalation,loss_chasing,all_in,after_big_win,session_duration_sec
+A,1,1763655780.5201,10,2,20,0,,980,,False,False,False,False
+A,2,1763655785.1515698,10,2,20,0,,960,4.63,False,False,False,False
+A,3,1763655788.076563,10,2,20,20,2,960,2.92,False,False,False,False
+A,4,1763655792.2155972,10,2,20,30,1,970,4.14,False,False,False,False
+A,5,1763655795.902165,10,2,20,0,,950,3.69,False,False,False,False
+A,6,1763655799.811745,10,2,20,0,,930,3.91,False,False,False,False
+A,7,1763655802.700279,10,2,20,0,,910,2.89,False,False,False,False
+A,8,1763655810.5454469,30,3,90,0,,820,7.85,True,True,False,False
+A,9,1763655813.528217,30,3,90,0,,730,2.98,False,False,False,False
+A,10,1763655816.460921,30,3,90,0,,640,2.93,False,False,False,False
+A,11,1763655819.421282,30,3,90,60,3,610,2.96,False,False,False,False
+A,12,1763655822.526929,30,3,90,0,,520,3.11,False,False,False,False
+A,13,1763655825.022753,30,3,90,0,,430,2.5,False,False,False,False
+A,14,1763655827.844834,30,3,90,0,,340,2.82,False,False,False,False
+A,15,1763655831.91699,30,3,90,120,1|3,370,4.07,False,False,False,False
+A,16,1763655836.8410041,30,3,90,60,3,340,4.92,False,False,False,False
+A,17,1763655839.1737769,30,3,90,0,,250,2.33,False,False,False,False
+A,18,1763655842.698103,30,3,90,180,1|3,340,3.52,False,False,False,False
+A,19,1763655846.5116239,30,3,90,0,,250,3.81,False,False,False,False
+A,20,1763655849.2260501,30,3,90,0,,160,2.71,False,False,False,False
+A,21,1763655855.35679,50,3,150,0,,10,6.13,True,True,False,False
+A,22,1763655862.345473,10,1,10,0,,0,6.99,False,False,True,False
+SESSION END,,,,,,,,0,,,,,,372.5189399719238

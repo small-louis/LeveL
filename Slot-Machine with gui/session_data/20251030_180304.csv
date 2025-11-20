@@ -1,0 +1,7 @@
+participant_id,group_id,spin_number,timestamp,bet_per_line,num_lines,total_bet,winnings,winning_lines,balance_after_spin,time_since_last_spin_sec,bet_escalation,loss_chasing,all_in,after_big_win,session_duration_sec
+003,,1,1761847399.911032,25,1,25,0,,475,,False,False,False,False
+003,,2,1761847409.0642822,50,2,100,0,,375,9.15,True,True,False,False
+003,,3,1761847414.1654139,10,1,10,0,,365,5.1,False,False,False,False
+003,,4,1761847419.67629,50,1,50,0,,315,5.51,True,True,False,False
+003,,5,1761847429.4074528,20,1,20,0,,295,9.73,False,False,False,False
+SESSION END,,,,,,,,,295,,,,,,57.8058660030365
