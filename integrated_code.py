@@ -52,9 +52,11 @@ print("Connected! Waiting for ESP32...")
 time.sleep(2)
 print("Starting integrated system...\n")
 
-# Create GSR-data folder
+# Create GSR-data folder structure
 if not os.path.exists('GSR-data'):
     os.makedirs('GSR-data')
+if not os.path.exists('GSR-data/experiments'):
+    os.makedirs('GSR-data/experiments')
 
 # ===== GSR DATA =====
 gsr_times = deque(maxlen=500)
@@ -65,6 +67,8 @@ gsr_count = 0
 recording = False
 recorded_data = []
 start_time = None
+current_phase = "Baseline"
+current_state = "A"
 
 def update_motor(ch):
     """Send motor configuration to ESP32"""
@@ -89,42 +93,79 @@ def sync_motors():
     ser.write(b"S\n")
     print("Motors synchronized!")
 
+def set_phase(phase):
+    """Set current experiment phase"""
+    global current_phase
+    if recording:
+        current_phase = phase
+        print(f"Phase changed to: {phase}")
+
+def set_state(state):
+    """Set intervention state (only when not recording)"""
+    global current_state
+    if not recording:
+        current_state = state
+        state_label.config(text=f"→ Current: {state}")
+        print(f"State set to: {state}")
+
 def toggle_recording():
     """Start/stop GSR recording"""
-    global recording, recorded_data, start_time, gsr_count
+    global recording, recorded_data, start_time, gsr_count, current_phase
     
     if not recording:
+        # Validate user ID
+        user_id = user_id_var.get().strip()
+        if not user_id:
+            status_label.config(text="⚠️ Enter Participant ID first!", fg="red")
+            return
+        
         recording = True
         recorded_data = []
         gsr_count = 0
         gsr_times.clear()
         gsr_values.clear()
         start_time = time.time()
+        current_phase = "Baseline"  # Always start with Baseline
         
-        record_btn.config(text="STOP & SAVE", bg="red")
-        status_label.config(text="Recording...", fg="red")
-        print("\n=== GSR RECORDING STARTED ===")
+        record_btn.config(text="⏹ STOP & SAVE", bg="#DC143C")
+        status_label.config(text="🔴 RECORDING...", fg="red")
+        
+        # Lock state buttons during recording
+        state_a_btn.config(state="disabled")
+        state_b_btn.config(state="disabled")
+        user_id_entry.config(state="disabled")
+        
+        print(f"\n=== GSR RECORDING STARTED ===")
+        print(f"User ID: {user_id}")
+        print(f"State: {current_state}")
+        print(f"Phase: {current_phase}")
     else:
         recording = False
-        record_btn.config(text="START RECORDING", bg="green")
+        record_btn.config(text="▶ START RECORDING", bg="#228B22")
+        
+        # Unlock state buttons
+        state_a_btn.config(state="normal")
+        state_b_btn.config(state="normal")
+        user_id_entry.config(state="normal")
         
         if len(recorded_data) > 0:
             save_gsr_data()
-            status_label.config(text=f"Saved {len(recorded_data)} samples", fg="green")
+            status_label.config(text=f"✅ Saved {len(recorded_data)} samples", fg="green")
         else:
-            status_label.config(text="No data", fg="orange")
+            status_label.config(text="⚠️ No data recorded", fg="orange")
         
         print("=== RECORDING STOPPED ===\n")
 
 def save_gsr_data():
     """Save GSR data to CSV"""
+    user_id = user_id_var.get().strip()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"GSR-data/gsr_{timestamp}.csv"
+    filename = f"GSR-data/experiments/gsr_{user_id}_State{current_state}_{timestamp}.csv"
     filepath = os.path.abspath(filename)
     
     with open(filename, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['Time (s)', 'GSR Value'])
+        writer.writerow(['Time (s)', 'Phase', 'State', 'GSR Value'])
         writer.writerows(recorded_data)
     
     print(f"\n✓ Saved to: {filepath}")
@@ -150,7 +191,7 @@ def update_plot(frame):
                 
                 if recording and start_time is not None:
                     recording_time = time.time() - start_time
-                    recorded_data.append([recording_time, val])
+                    recorded_data.append([recording_time, current_phase, current_state, val])
                     
         except Exception as e:
             pass
@@ -166,8 +207,8 @@ def update_plot(frame):
                 bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8))
         
         if recording:
-            ax.text(0.98, 0.98, 'RECORDING ●',
-                    transform=ax.transAxes, fontsize=12,
+            ax.text(0.98, 0.98, f'RECORDING ● | Phase: {current_phase} | State: {current_state}',
+                    transform=ax.transAxes, fontsize=11,
                     verticalalignment='top', horizontalalignment='right',
                     fontweight='bold', color='red',
                     bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
@@ -203,6 +244,9 @@ for i in range(6):
         'dub_enabled': tk.BooleanVar(value=True)
     })
 
+# User ID variable
+user_id_var = tk.StringVar()
+
 # Main container with two columns
 main_frame = tk.Frame(root)
 main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -218,15 +262,87 @@ gsr_control.pack(side=tk.TOP, fill=tk.X)
 tk.Label(gsr_control, text="GSR MONITOR", font=("Arial", 14, "bold"),
          bg='lightgray').pack(side=tk.TOP, pady=5)
 
-record_btn = tk.Button(gsr_control, text="START RECORDING",
+# User ID row
+user_id_frame = tk.Frame(gsr_control, bg='lightgray')
+user_id_frame.pack(side=tk.TOP, pady=8)
+
+tk.Label(user_id_frame, text="PARTICIPANT ID:", font=("Arial", 12, "bold"),
+         bg='lightgray', fg='#333').pack(side=tk.LEFT, padx=5)
+
+user_id_entry = tk.Entry(user_id_frame, textvariable=user_id_var,
+                         font=("Arial", 12, "bold"), width=18, relief=tk.SOLID, bd=2)
+user_id_entry.pack(side=tk.LEFT, padx=5)
+
+# State selection row
+state_frame = tk.Frame(gsr_control, bg='lightgray')
+state_frame.pack(side=tk.TOP, pady=8)
+
+tk.Label(state_frame, text="INTERVENTION STATE:", font=("Arial", 12, "bold"),
+         bg='lightgray', fg='#333').pack(side=tk.LEFT, padx=5)
+
+state_a_btn = tk.Button(state_frame, text="STATE A",
+                       command=lambda: set_state("A"),
+                       font=("Arial", 11, "bold"),
+                       bg='#87CEEB', fg='white', width=12, height=1,
+                       relief=tk.RAISED, bd=3)
+state_a_btn.pack(side=tk.LEFT, padx=5)
+
+state_b_btn = tk.Button(state_frame, text="STATE B",
+                       command=lambda: set_state("B"),
+                       font=("Arial", 11, "bold"),
+                       bg='#FF6B6B', fg='white', width=12, height=1,
+                       relief=tk.RAISED, bd=3)
+state_b_btn.pack(side=tk.LEFT, padx=5)
+
+state_label = tk.Label(state_frame, text="→ Current: A",
+                      font=("Arial", 12, "bold"), bg='lightgray', fg='#006400')
+state_label.pack(side=tk.LEFT, padx=10)
+
+# Recording controls row
+record_frame = tk.Frame(gsr_control, bg='lightgray')
+record_frame.pack(side=tk.TOP, pady=10)
+
+record_btn = tk.Button(record_frame, text="▶ START RECORDING",
                        command=toggle_recording,
-                       font=("Arial", 12, "bold"),
-                       bg='green', fg='white', width=18, height=2)
+                       font=("Arial", 14, "bold"),
+                       bg='#228B22', fg='white', width=20, height=2,
+                       relief=tk.RAISED, bd=4)
 record_btn.pack(side=tk.LEFT, padx=10)
 
-status_label = tk.Label(gsr_control, text="Not Recording",
-                       font=("Arial", 11), bg='lightgray')
+status_label = tk.Label(record_frame, text="⚪ Ready to Record",
+                       font=("Arial", 12, "bold"), bg='lightgray', fg='#555')
 status_label.pack(side=tk.LEFT, padx=10)
+
+# Phase controls row
+phase_frame = tk.Frame(gsr_control, bg='lightgray')
+phase_frame.pack(side=tk.TOP, pady=8)
+
+tk.Label(phase_frame, text="EXPERIMENT PHASE:", font=("Arial", 12, "bold"),
+         bg='lightgray', fg='#333').pack(side=tk.TOP, pady=3)
+
+phase_buttons = tk.Frame(phase_frame, bg='lightgray')
+phase_buttons.pack(side=tk.TOP)
+
+baseline_btn = tk.Button(phase_buttons, text="1️⃣ BASELINE",
+                        command=lambda: set_phase("Baseline"),
+                        font=("Arial", 11, "bold"),
+                        bg='#90EE90', fg='#000', width=14, height=2,
+                        relief=tk.RAISED, bd=3)
+baseline_btn.pack(side=tk.LEFT, padx=5)
+
+trial_btn = tk.Button(phase_buttons, text="2️⃣ TRIAL",
+                     command=lambda: set_phase("Trial"),
+                     font=("Arial", 11, "bold"),
+                     bg='#FFD700', fg='#000', width=14, height=2,
+                     relief=tk.RAISED, bd=3)
+trial_btn.pack(side=tk.LEFT, padx=5)
+
+post_btn = tk.Button(phase_buttons, text="3️⃣ POST",
+                    command=lambda: set_phase("Post"),
+                    font=("Arial", 11, "bold"),
+                    bg='#FFA07A', fg='#000', width=14, height=2,
+                    relief=tk.RAISED, bd=3)
+post_btn.pack(side=tk.LEFT, padx=5)
 
 # GSR plot
 fig, ax = plt.subplots(figsize=(7, 7))

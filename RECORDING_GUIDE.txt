@@ -1,0 +1,103 @@
+================================================================================
+GSR RECORDING GUIDE - Integrated Code System
+================================================================================
+
+OVERVIEW:
+The integrated_code.py now supports structured experiment recording with:
+- User ID tracking
+- Three experiment phases (Baseline, Trial, Post)
+- Intervention state blinding (State A/B)
+- Single continuous recording session
+
+================================================================================
+GUI LAYOUT:
+================================================================================
+
+LEFT SIDE - GSR MONITOR:
+------------------------
+1. User ID Entry Box
+   - Enter participant ID (e.g., P001, User01, etc.)
+   - Required before recording starts
+
+2. Intervention State Buttons
+   - State A / State B buttons
+   - Set BEFORE starting recording
+   - Locked during recording (prevents accidental changes)
+   - State A/B labels maintain blinding (researcher knows which is intervention)
+
+3. Recording Controls
+   - START RECORDING (green) / STOP & SAVE (red) button
+   - Status display
+
+4. Phase Transition Buttons
+   - Baseline (light green) - Starting phase
+   - Trial (yellow) - Main experiment phase
+   - Post (light orange) - Post-experiment phase
+   - Click during recording to mark phase transitions
+
+5. Live GSR Plot
+   - Shows current GSR value
+   - During recording: displays Phase and State on plot
+
+RIGHT SIDE - HAPTIC CONTROLS:
+-----------------------------
+- 6 motor controls (unchanged)
+- BPM sliders, Lub/Dub effects, enable/disable
+- Sync button
+
+================================================================================
+WORKFLOW:
+================================================================================
+
+BEFORE RECORDING:
+1. Enter User ID in text box
+2. Select intervention state (State A or State B)
+3. Set up haptic motors as needed
+
+DURING RECORDING:
+1. Click "START RECORDING" (starts in Baseline phase)
+2. Run baseline period
+3. Click "Trial" button when starting trial phase
+4. Run trial period
+5. Click "Post" button when starting post-experiment phase
+6. Run post-experiment period
+7. Click "STOP & SAVE" when complete
+
+AFTER RECORDING:
+- File automatically saved to GSR-data/
+- Filename format: gsr_UserID_StateA_TIMESTAMP.csv
+  Example: gsr_P001_StateA_20251117_143052.csv
+
+================================================================================
+CSV OUTPUT FORMAT:
+================================================================================
+
+Columns:
+- Time (s): Elapsed time since recording started
+- Phase: Current phase (Baseline, Trial, or Post)
+- State: Intervention state (A or B)
+- GSR Value: Raw GSR sensor reading (0-4095)
+
+Example:
+Time (s), Phase, State, GSR Value
+0.0, Baseline, A, 2750
+0.1, Baseline, A, 2748
+45.3, Trial, A, 2820
+120.7, Post, A, 2765
+
+================================================================================
+IMPORTANT NOTES:
+================================================================================
+
+- User ID is REQUIRED before recording
+- State selection is LOCKED during recording (prevents accidental changes)
+- User ID entry is LOCKED during recording
+- Recording always starts in Baseline phase
+- Phase can be changed freely during recording
+- All data saved to single CSV file with phase markers
+- No data gaps between phases
+
+================================================================================
+
+
+
